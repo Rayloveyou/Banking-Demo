@@ -261,24 +261,58 @@ jobs:
             Status: ${{ job.status }}
             Lint: ${{ needs.lint.result }} | Test: ${{ needs.test.result }} | SAST: ${{ needs.sast-trivy.result }} | Dep: ${{ needs.dep-scan.result }}
 
-      - name: Send failed reports to Telegram
-        if: |
-          needs.sast-trivy.result != 'success' ||
-          needs.sast-bandit.result != 'success' ||
-          needs.dep-scan.result != 'success'
+      - name: List downloaded artifacts
+        run: |
+          echo "=== Artifact structure ==="
+          find . -type f -name "*.txt" 2>/dev/null || true
+          ls -la trivy-report/ 2>/dev/null || echo "trivy-report/ not found"
+          ls -la bandit-report/ 2>/dev/null || echo "bandit-report/ not found"
+          ls -la audit-report/ 2>/dev/null || echo "audit-report/ not found"
+
+      - name: Send Trivy report to Telegram
         continue-on-error: true
         run: |
-          send_report() {
-            local name="$1"
-            local pattern="$2"
-            local f
-            f=$(find . -name "$pattern" -type f 2>/dev/null | head -1)
-            [ -n "$f" ] && [ -f "$f" ] || return 0
+          F=""
+          [ -f "trivy-report/trivy-report.txt" ] && F="trivy-report/trivy-report.txt"
+          [ -z "$F" ] && [ -f "trivy-report.txt" ] && F="trivy-report.txt"
+          if [ -n "$F" ]; then
+            echo "Sending Trivy report: $F"
             curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendDocument" \
               -F "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}" \
-              -F "document=@$f" \
-              -F "caption=🔒 $name - full report"
-          }
-          [ "${{ needs.sast-trivy.result }}" != "success" ] && send_report "Trivy SAST" "trivy-report.txt"
-          [ "${{ needs.sast-bandit.result }}" != "success" ] && send_report "Bandit SAST" "bandit-report.txt"
-          [ "${{ needs.dep-scan.result }}" != "success" ] && send_report "Dependency Scan" "audit-report.txt"
+              -F "document=@$F" \
+              -F "caption=🔒 Trivy SAST Report"
+          else
+            echo "Trivy report not found"
+          fi
+
+      - name: Send Bandit report to Telegram
+        continue-on-error: true
+        run: |
+          F=""
+          [ -f "bandit-report/bandit-report.txt" ] && F="bandit-report/bandit-report.txt"
+          [ -z "$F" ] && [ -f "bandit-report.txt" ] && F="bandit-report.txt"
+          if [ -n "$F" ]; then
+            echo "Sending Bandit report: $F"
+            curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendDocument" \
+              -F "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}" \
+              -F "document=@$F" \
+              -F "caption=🔒 Bandit SAST Report"
+          else
+            echo "Bandit report not found"
+          fi
+
+      - name: Send Dependency scan report to Telegram
+        continue-on-error: true
+        run: |
+          F=""
+          [ -f "audit-report/audit-report.txt" ] && F="audit-report/audit-report.txt"
+          [ -z "$F" ] && [ -f "audit-report.txt" ] && F="audit-report.txt"
+          if [ -n "$F" ]; then
+            echo "Sending Dependency report: $F"
+            curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendDocument" \
+              -F "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}" \
+              -F "document=@$F" \
+              -F "caption=🔒 Dependency Scan Report"
+          else
+            echo "Audit report not found"
+          fi

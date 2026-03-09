@@ -1,3 +1,8 @@
+# Sửa file trong common, services, phase4, phase8 hoặc k8s-chatbot
+# Ví dụ: thêm 1 dòng comment vào common/__init__.py hoặc file bất kỳimport os
+# Sửa file trong common, services, phase4, phase8 hoặc k8s-chatbot
+# Ví dụ: thêm 1 dòng comment vào common/__init__.py hoặc file bất kỳimport os
+
 import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
