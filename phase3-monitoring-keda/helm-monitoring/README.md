@@ -196,7 +196,7 @@ Chi tiết: xem `phase3-monitoring-keda/exporters/README.md`.
 ## App gửi trace / metrics
 
 - **Metrics:** Prometheus scrape `/metrics` (đã cấu hình qua `additionalScrapeConfigs` cho banking services + Kong + Redis + Postgres).
-- **Traces:** App set `OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector-opentelemetry-collector.monitoring.svc.cluster.local:4317` và export OTLP gRPC.
+- **Traces:** App set `OTEL_EXPORTER_OTLP_ENDPOINT=http://opentelemetry-collector.monitoring.svc.cluster.local:4317` và export OTLP gRPC.
 
 Đảm bảo app trong `banking` có thể resolve được service OTEL Collector trong `monitoring`.
 
