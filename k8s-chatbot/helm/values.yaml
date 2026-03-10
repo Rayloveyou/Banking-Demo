@@ -41,6 +41,6 @@ lokiUrl: "http://loki.monitoring.svc.cluster.local:3100"
 tempoUrl: "http://tempo.monitoring.svc.cluster.local:3200"
 
 ingress:
-  enabled: false
+  enabled: true
   className: haproxy
   host: chatbot.npd-banking.co
