@@ -1,7 +1,9 @@
-# OpenTelemetry Collector — nhận OTLP từ app, export traces sang Tempo
+# OpenTelemetry Collector — nhận OTLP từ app, export traces sang Tempo + Jaeger
 # Chart: open-telemetry/opentelemetry-collector
 # Chỉnh config.exporters.otlp/tempo endpoint nếu Tempo service khác.
 
+# Service name = opentelemetry-collector (app trỏ tới opentelemetry-collector.monitoring...)
+fullnameOverride: opentelemetry-collector
 namespaceOverride: monitoring
 mode: deployment
 replicaCount: 1
