@@ -8,7 +8,7 @@ on:
       - 'common/**'
       - 'services/**'
       - 'frontend/**'
-      - 'phase4-application-v2/**'
+      #- 'phase4-application-v2/**'
       - 'phase8-application-v3/**'
       # KHÔNG trigger khi đổi:
       # - phase2-helm-chart/**
