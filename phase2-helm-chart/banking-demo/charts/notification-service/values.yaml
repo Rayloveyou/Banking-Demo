@@ -4,7 +4,7 @@ notification-service:
   enabled: true
   image:
     repository: registry.gitlab.com/kiettt164/banking-demo-payment/notification-service
-    tag: e1eddf0
+    tag: 2d4c7af
     pullPolicy: Always
   imagePullSecrets: []
   replicas: 1
