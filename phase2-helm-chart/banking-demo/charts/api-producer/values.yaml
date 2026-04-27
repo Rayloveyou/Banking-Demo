@@ -1,6 +1,6 @@
 # API Producer values - merged with parent values via ArgoCD/Helm
 api-producer:
-  enabled: true
+  enabled: false
   replicas: 1
   image:
     repository: datnxdevops/banking-demo-api-producer
