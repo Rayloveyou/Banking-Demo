@@ -489,4 +489,8 @@ smokeTest:
   enabled: false
 
 # ===== Kong External Service =====
-kongExternalService: false
+kongExternalService:
+  enabled: true
+  name: kong-proxy-ext
+  externalName: kong-kong-proxy.kong.svc.cluster.local
+  port: 8000

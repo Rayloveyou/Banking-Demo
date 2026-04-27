@@ -1,0 +1,43 @@
+{{- /* Infrastructure Services (Postgres, Redis, RabbitMQ) - renders for all enabled services */ -}}
+{{- $services := list "postgres" "redis" "rabbitmq" }}
+{{- range $services }}
+{{- $svc := index $.Values . }}
+{{- if $svc.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ . }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    app: {{ . }}
+    app.kubernetes.io/name: {{ include "banking-demo.chart" $ }}
+    app.kubernetes.io/instance: {{ $.Release.Name }}
+    app.kubernetes.io/component: {{ . }}
+spec:
+  selector:
+    app: {{ . }}
+  {{- if eq . "postgres" }}
+  clusterIP: None
+  {{- else if eq . "redis" }}
+  clusterIP: None
+  {{- end }}
+  ports:
+    {{- if eq . "postgres" }}
+    - port: {{ $svc.service.port }}
+      targetPort: {{ $svc.service.port }}
+      name: {{ $svc.service.portName | default "postgres" }}
+    {{- else if eq . "redis" }}
+    - port: {{ $svc.service.port }}
+      targetPort: {{ $svc.service.port }}
+      name: {{ $svc.service.portName | default "redis" }}
+    {{- else if eq . "rabbitmq" }}
+    - port: {{ $svc.service.port }}
+      targetPort: {{ $svc.service.port }}
+      name: {{ $svc.service.portName | default "amqp" }}
+    - port: 15672
+      targetPort: 15672
+      name: management
+    {{- end }}
+{{- end }}
+{{- end }}

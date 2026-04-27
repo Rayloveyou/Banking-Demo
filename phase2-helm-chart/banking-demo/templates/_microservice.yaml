@@ -1,33 +1,28 @@
-{{- /*
-Unified Microservice Template
-Defines both Deployment and Service for each microservice
-Usage: include "banking-demo.microservice" (dict "root" . "svcName" "auth-service")
-*/ -}}
-{{- define "banking-demo.microservice" -}}
-{{- $root := .root -}}
-{{- $svcName := .svcName -}}
-{{- $svc := index $root.Values $svcName -}}
+{{- /* Microservice Deployment + Service - renders for all enabled services */ -}}
+{{- $services := list "auth-service" "account-service" "transfer-service" "notification-service" "api-producer" "frontend" }}
+{{- range $services }}
+{{- $svc := index $.Values . }}
 {{- if $svc.enabled }}
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ $svcName }}
-  namespace: {{ $root.Release.Namespace }}
+  name: {{ . }}
+  namespace: {{ $.Release.Namespace }}
   labels:
-    app: {{ $svcName }}
-    app.kubernetes.io/name: {{ include "banking-demo.chart" $root }}
-    app.kubernetes.io/instance: {{ $root.Release.Name }}
-    app.kubernetes.io/component: {{ $svcName }}
+    app: {{ . }}
+    app.kubernetes.io/name: {{ include "banking-demo.chart" $ }}
+    app.kubernetes.io/instance: {{ $.Release.Name }}
+    app.kubernetes.io/component: {{ . }}
 spec:
   replicas: {{ $svc.replicas }}
   selector:
     matchLabels:
-      app: {{ $svcName }}
+      app: {{ . }}
   template:
     metadata:
       labels:
-        app: {{ $svcName }}
+        app: {{ . }}
     spec:
       {{- with $svc.securityContext.pod }}
       securityContext:
@@ -38,7 +33,7 @@ spec:
         {{- toYaml $svc.imagePullSecrets | nindent 8 }}
       {{- end }}
       containers:
-        - name: {{ $svcName }}
+        - name: {{ . }}
           image: "{{ $svc.image.repository }}:{{ $svc.image.tag }}"
           imagePullPolicy: {{ $svc.image.pullPolicy }}
           {{- with $svc.securityContext.container }}
@@ -93,24 +88,17 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ $svcName }}
-  namespace: {{ $root.Release.Namespace }}
+  name: {{ . }}
+  namespace: {{ $.Release.Namespace }}
   labels:
-    app: {{ $svcName }}
-    app.kubernetes.io/name: {{ include "banking-demo.chart" $root }}
-    app.kubernetes.io/instance: {{ $root.Release.Name }}
-    app.kubernetes.io/component: {{ $svcName }}
+    app: {{ . }}
+    app.kubernetes.io/name: {{ include "banking-demo.chart" $ }}
+    app.kubernetes.io/instance: {{ $.Release.Name }}
+    app.kubernetes.io/component: {{ . }}
 spec:
-  {{- if eq $svc.service.type "ClusterIP" }}
   type: ClusterIP
-  {{- else if eq $svc.service.type "ExternalName" }}
-  type: ExternalName
-  externalName: {{ $svc.service.externalName }}
-  {{- else }}
-  type: {{ $svc.service.type | default "ClusterIP" }}
-  {{- end }}
   selector:
-    app: {{ $svcName }}
+    app: {{ . }}
   ports:
     - port: {{ $svc.service.port }}
       targetPort: {{ $svc.service.targetPort | default $svc.service.port }}
