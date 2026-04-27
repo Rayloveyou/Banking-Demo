@@ -1,0 +1,42 @@
+# Template for generating simplified applications
+# Each application only loads values-phase1.yaml and enables/disables its service
+# No need for individual chart values files - templates auto-render based on enabled flags
+
+# Example: auth-service
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: banking-demo-SERVICE_NAME
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "SYNC_WAVE"
+spec:
+  project: banking-demo
+  source:
+    repoURL: https://github.com/Rayloveyou/Banking-Demo.git
+    targetRevision: main
+    path: phase2-helm-chart/banking-demo
+    helm:
+      releaseName: banking-demo-SERVICE_NAME
+      valueFiles:
+        - values-phase1.yaml
+      parameters:
+        - name: SERVICE_NAME.enabled
+          value: "true"
+        # Disable all other services
+        - name: auth-service.enabled
+          value: "false"
+        - name: account-service.enabled
+          value: "false"
+        # ... (disable all other services)
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: banking
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - ApplyOutOfSyncOnly=true

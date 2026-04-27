@@ -14,21 +14,10 @@ spec:
     helm:
       releaseName: banking-demo-auth-service
       valueFiles:
-        - charts/common/values.yaml
         - values-phase1.yaml
       parameters:
-        - name: namespace.enabled
-          value: "false"
-        - name: secret.enabled
-          value: "false"
-        - name: postgres.enabled
-          value: "false"
-        - name: redis.enabled
-          value: "false"
-        - name: kong.enabled
-          value: "false"
         - name: auth-service.enabled
-          value: "false"
+          value: "true"
         - name: account-service.enabled
           value: "false"
         - name: transfer-service.enabled
@@ -39,10 +28,16 @@ spec:
           value: "false"
         - name: frontend.enabled
           value: "false"
+        - name: kong.enabled
+          value: "false"
+        - name: postgres.enabled
+          value: "false"
+        - name: redis.enabled
+          value: "false"
+        - name: rabbitmq.enabled
+          value: "false"
         - name: ingress.enabled
           value: "false"
-        - name: auth-service.enabled
-          value: "true"
 
   destination:
     server: https://kubernetes.default.svc
