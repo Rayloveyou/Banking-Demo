@@ -480,14 +480,6 @@ ingress:
       serviceName: kong
       servicePort: 8000
 
-# ===== Database Migration =====
-dbMigration:
-  enabled: false
-
-# ===== Smoke Test =====
-smokeTest:
-  enabled: false
-
 # ===== Kong External Service =====
 kongExternalService:
   enabled: true
