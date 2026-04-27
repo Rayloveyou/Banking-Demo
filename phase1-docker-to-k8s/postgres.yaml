@@ -83,7 +83,7 @@ spec:
     - metadata:
         name: pgdata
       spec:
-        storageClassName: nfs-client
+        storageClassName: standard
         accessModes: ["ReadWriteOnce"]
         resources:
           requests:

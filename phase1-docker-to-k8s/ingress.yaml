@@ -5,7 +5,7 @@ metadata:
   name: banking-ingress
   namespace: banking
 spec:
-  ingressClassName: haproxy
+  ingressClassName: nginx
   rules:
     - host: npd-banking.co
       http:

@@ -63,13 +63,18 @@ async def list_notifications(x_session: str | None = Header(default=None), db: S
 async def ws(websocket: WebSocket):
     """WebSocket endpoint for real-time notifications"""
     session = websocket.query_params.get("session")
+
     if not session:
+        await websocket.accept()
+        await websocket.send_json({"error": "Missing session parameter"})
         await websocket.close(code=1008)
         return
 
     try:
         user_id = await get_user_id_from_session(redis, session)
-    except HTTPException:
+    except HTTPException as e:
+        await websocket.accept()
+        await websocket.send_json({"error": str(e.detail)})
         await websocket.close(code=1008)
         return
 

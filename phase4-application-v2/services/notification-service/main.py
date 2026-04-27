@@ -76,20 +76,22 @@ async def list_notifications(x_session: str | None = Header(default=None), db: S
 async def ws(websocket: WebSocket):
     """WebSocket endpoint for real-time notifications"""
     session = websocket.query_params.get("session")
+
     if not session:
-        log_event(logger, "ws_rejected", reason="MISSING_SESSION", client=str(websocket.client))
+        await websocket.accept()
+        await websocket.send_json({"error": "Missing session parameter"})
         await websocket.close(code=1008)
         return
 
     try:
         user_id = await get_user_id_from_session(redis, session)
-    except HTTPException:
-        log_event(logger, "ws_rejected", reason="INVALID_SESSION", client=str(websocket.client))
+    except HTTPException as e:
+        await websocket.accept()
+        await websocket.send_json({"error": str(e.detail)})
         await websocket.close(code=1008)
         return
 
     await websocket.accept()
-    log_event(logger, "ws_connected", user_id=user_id, client=str(websocket.client))
 
     pubsub = redis.pubsub()
     await pubsub.subscribe(f"notify:{user_id}")

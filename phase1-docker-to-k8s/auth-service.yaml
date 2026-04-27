@@ -20,11 +20,9 @@ spec:
       securityContext:
         seccompProfile:
           type: RuntimeDefault
-      imagePullSecrets:
-        - name: gitlab-registry
       containers:
         - name: auth-service
-          image: registry.gitlab.com/kiettt164/banking-demo-payment/auth-service:v1
+          image: datnxdevops/banking-demo-auth:v1
           imagePullPolicy: Always
           securityContext:
             allowPrivilegeEscalation: false

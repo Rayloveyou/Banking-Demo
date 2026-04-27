@@ -20,11 +20,9 @@ spec:
       securityContext:
         seccompProfile:
           type: RuntimeDefault
-      imagePullSecrets:
-        - name: gitlab-registry
       containers:
         - name: transfer-service
-          image: registry.gitlab.com/kiettt164/banking-demo-payment/transfer-service:v1
+          image: datnxdevops/banking-demo-transfer:v1
           imagePullPolicy: Always
           securityContext:
             allowPrivilegeEscalation: false

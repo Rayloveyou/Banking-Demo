@@ -12,5 +12,48 @@ keywords:
   - redis
 maintainers: []
 kubeVersion: ">=1.24"
-# Dependencies không dùng (mỗi service chỉ có Chart.yaml + values.yaml trong charts/<name>/;
-# templates dùng chung ở templates/; merge values bằng -f charts/<name>/values.yaml khi cần)
+dependencies:
+  - name: auth-service
+    version: 0.1.0
+    repository: ""
+    condition: auth-service.enabled
+  - name: account-service
+    version: 0.1.0
+    repository: ""
+    condition: account-service.enabled
+  - name: transfer-service
+    version: 0.1.0
+    repository: ""
+    condition: transfer-service.enabled
+  - name: notification-service
+    version: 0.1.0
+    repository: ""
+    condition: notification-service.enabled
+  - name: frontend
+    version: 0.1.0
+    repository: ""
+    condition: frontend.enabled
+  - name: kong
+    version: 0.1.0
+    repository: ""
+    condition: kong.enabled
+  - name: postgres
+    version: 0.1.0
+    repository: ""
+    condition: postgres.enabled
+  - name: redis
+    version: 0.1.0
+    repository: ""
+    condition: redis.enabled
+  - name: api-producer
+    version: 0.1.0
+    repository: ""
+    condition: api-producer.enabled
+  - name: rabbitmq
+    version: 0.1.0
+    repository: ""
+    condition: rabbitmq.enabled
+  - name: common
+    version: 0.1.0
+    repository: ""
+    condition: common.enabled
