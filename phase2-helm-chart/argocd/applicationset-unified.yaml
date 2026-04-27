@@ -1,0 +1,84 @@
+# Banking Demo ApplicationSet
+# apps-in-app pattern: Main ApplicationSet generates per-service Applications
+# Each application loads its sub-chart with unified templates
+---
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: banking-demo
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: banking-demo
+spec:
+  generators:
+    - list:
+        elements:
+          - name: config
+            syncWave: "-1"
+            prune: false
+          - name: postgres
+            syncWave: "0"
+            prune: false
+          - name: redis
+            syncWave: "0"
+            prune: false
+          - name: rabbitmq
+            syncWave: "0"
+            prune: false
+          - name: kong
+            syncWave: "1"
+            prune: true
+          - name: auth-service
+            syncWave: "2"
+            prune: true
+          - name: account-service
+            syncWave: "2"
+            prune: true
+          - name: transfer-service
+            syncWave: "2"
+            prune: true
+          - name: notification-service
+            syncWave: "2"
+            prune: true
+          - name: api-producer
+            syncWave: "2"
+            prune: true
+          - name: frontend
+            syncWave: "3"
+            prune: true
+          - name: ingress
+            syncWave: "4"
+            prune: false
+
+  template:
+    metadata:
+      name: banking-demo-{{ .name }}
+      annotations:
+        argocd.argoproj.io/sync-wave: "{{ .syncWave }}"
+    spec:
+      project: banking-demo
+      source:
+        repoURL: https://github.com/Rayloveyou/Banking-Demo.git
+        targetRevision: main
+        path: phase2-helm-chart/banking-demo
+        helm:
+          releaseName: banking-demo-{{ .name }}
+          valueFiles:
+            - values-phase1.yaml
+
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: banking
+
+      syncPolicy:
+        automated:
+          prune: {{ .prune }}
+          selfHeal: true
+        syncOptions:
+          - {{ if eq .name "config" }}CreateNamespace=true{{ else }}ApplyOutOfSyncOnly=true{{ end }}
+        retry:
+          limit: 3
+          backoff:
+            duration: 5s
+            factor: 2
+            maxDuration: 1m

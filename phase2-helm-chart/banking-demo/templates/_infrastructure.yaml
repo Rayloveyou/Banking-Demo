@@ -1,0 +1,207 @@
+{{- /*
+Unified Infrastructure Template
+Renders StatefulSet/Deployment + Service for postgres, redis, rabbitmq, kong
+When postgres sub-chart loads: uses postgres values
+When redis sub-chart loads: uses redis values
+etc
+*/ -}}
+{{- $serviceName := include "banking-demo.serviceName" . }}
+{{- $svc := index $.Values $serviceName }}
+{{- if $svc.enabled }}
+
+{{- if or (eq $serviceName "postgres") (eq $serviceName "redis") }}
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ $serviceName }}
+  namespace: {{ $.Release.Namespace }}
+  {{- if and $svc.hook.preInstall $svc.hook.preUpgrade }}
+  annotations:
+    helm.sh/hook: pre-install,pre-upgrade
+    helm.sh/hook-weight: {{ $svc.hook.weight | quote }}
+  {{- end }}
+  labels:
+    app: {{ $serviceName }}
+    app.kubernetes.io/name: {{ include "banking-demo.chart" $ }}
+    app.kubernetes.io/instance: {{ $.Release.Name }}
+    app.kubernetes.io/component: {{ $serviceName }}
+spec:
+  serviceName: {{ $serviceName }}
+  replicas: {{ $svc.replicas }}
+  selector:
+    matchLabels:
+      app: {{ $serviceName }}
+  template:
+    metadata:
+      labels:
+        app: {{ $serviceName }}
+    spec:
+      {{- with $svc.securityContext.pod }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if $svc.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml $svc.imagePullSecrets | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ $serviceName }}
+          image: "{{ $svc.image.repository }}:{{ $svc.image.tag }}"
+          imagePullPolicy: {{ $svc.image.pullPolicy }}
+          {{- with $svc.securityContext.container }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          ports:
+            - containerPort: {{ $svc.service.port }}
+              name: {{ $svc.service.portName | default $serviceName }}
+          resources:
+            {{- toYaml $svc.resources | nindent 12 }}
+          {{- if eq $serviceName "postgres" }}
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $svc.secretRef.name }}
+                  key: {{ $svc.secretRef.keys.user }}
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $svc.secretRef.name }}
+                  key: {{ $svc.secretRef.keys.password }}
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $svc.secretRef.name }}
+                  key: {{ $svc.secretRef.keys.db }}
+          {{- end }}
+          volumeMounts:
+            - name: data
+              mountPath: {{ $svc.storage.mountPath }}
+          {{- if $svc.readinessProbe.enabled }}
+          readinessProbe:
+            {{- if eq $serviceName "postgres" }}
+            exec:
+              command: ["pg_isready", "-U", {{ $svc.readinessProbe.user | quote }}]
+            {{- else if eq $serviceName "redis" }}
+            exec:
+              command: {{ $svc.readinessProbe.command | toJson }}
+            {{- end }}
+            initialDelaySeconds: {{ $svc.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ $svc.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ $svc.readinessProbe.timeoutSeconds }}
+          {{- end }}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: {{ $svc.storage.storageClassName }}
+        resources:
+          requests:
+            storage: {{ $svc.storage.size }}
+
+{{- else if or (eq $serviceName "rabbitmq") (eq $serviceName "kong") }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $serviceName }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    app: {{ $serviceName }}
+    app.kubernetes.io/name: {{ include "banking-demo.chart" $ }}
+    app.kubernetes.io/instance: {{ $.Release.Name }}
+    app.kubernetes.io/component: {{ $serviceName }}
+spec:
+  replicas: {{ $svc.replicas }}
+  selector:
+    matchLabels:
+      app: {{ $serviceName }}
+  template:
+    metadata:
+      labels:
+        app: {{ $serviceName }}
+    spec:
+      {{- with $svc.securityContext.pod }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if $svc.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml $svc.imagePullSecrets | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ $serviceName }}
+          image: "{{ $svc.image.repository }}:{{ $svc.image.tag }}"
+          imagePullPolicy: {{ $svc.image.pullPolicy }}
+          {{- with $svc.securityContext.container }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          ports:
+            - containerPort: {{ $svc.service.port }}
+              name: {{ $svc.service.portName | default $serviceName }}
+          resources:
+            {{- toYaml $svc.resources | nindent 12 }}
+          {{- if $svc.env }}
+          env:
+            {{- range $k, $v := $svc.env }}
+            - name: {{ $k }}
+              value: {{ $v | quote }}
+            {{- end }}
+          {{- end }}
+          {{- if $svc.readinessProbe.enabled }}
+          readinessProbe:
+            {{- if $svc.readinessProbe.command }}
+            exec:
+              command: {{ $svc.readinessProbe.command | toJson }}
+            {{- end }}
+            initialDelaySeconds: {{ $svc.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ $svc.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ $svc.readinessProbe.timeoutSeconds }}
+          {{- end }}
+
+{{- end }}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $serviceName }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    app: {{ $serviceName }}
+    app.kubernetes.io/name: {{ include "banking-demo.chart" $ }}
+    app.kubernetes.io/instance: {{ $.Release.Name }}
+    app.kubernetes.io/component: {{ $serviceName }}
+spec:
+  {{- if or (eq $serviceName "postgres") (eq $serviceName "redis") }}
+  clusterIP: None
+  {{- else }}
+  type: ClusterIP
+  {{- end }}
+  selector:
+    app: {{ $serviceName }}
+  ports:
+    {{- if eq $serviceName "rabbitmq" }}
+    - port: 5672
+      targetPort: 5672
+      name: amqp
+    - port: 15672
+      targetPort: 15672
+      name: management
+    {{- else if eq $serviceName "kong" }}
+    - port: 8000
+      targetPort: 8000
+      name: proxy
+    - port: 8001
+      targetPort: 8001
+      name: admin
+    {{- else }}
+    - port: {{ $svc.service.port }}
+      targetPort: {{ $svc.service.port }}
+      name: {{ $svc.service.portName | default $serviceName }}
+    {{- end }}
+{{- end }}
