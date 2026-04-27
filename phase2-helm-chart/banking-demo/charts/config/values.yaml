@@ -1,0 +1,32 @@
+secret:
+  enabled: true
+  postgresUser: banking
+  postgresPassword: bankingpass
+  postgresDb: banking
+  databaseUrl: "postgresql://banking:bankingpass@postgres-postgresql-primary.postgres.svc.cluster.local:5432/banking"
+  redisUrl: "sentinel://:Mbfs%402025@redis.redis.svc.cluster.local:26379/0/mymaster"
+
+ingress:
+  enabled: true
+  className: nginx
+  host: npd-banking.co
+  name: banking-ingress
+  paths:
+    - path: /
+      pathType: Prefix
+      serviceName: frontend
+      servicePort: 80
+    - path: /api
+      pathType: Prefix
+      serviceName: kong-proxy-ext
+      servicePort: 8000
+    - path: /ws
+      pathType: Prefix
+      serviceName: kong-proxy-ext
+      servicePort: 8000
+
+kongExternalService:
+  enabled: true
+  name: kong-proxy-ext
+  externalName: kong-kong-proxy.kong.svc.cluster.local
+  port: 8000

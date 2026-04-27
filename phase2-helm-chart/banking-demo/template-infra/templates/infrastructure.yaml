@@ -102,6 +102,40 @@ spec:
             storage: {{ $svc.storage.size }}
 
 {{- else if or (eq $serviceName "rabbitmq") (eq $serviceName "kong") }}
+
+{{- if eq $serviceName "kong" }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kong-config
+  namespace: {{ $.Release.Namespace }}
+data:
+  {{ $svc.configFileName }}: |
+    _format_version: "3.0"
+    services:
+    {{- range $svc.backends }}
+      - name: {{ .name }}
+        url: {{ .url }}
+        routes:
+        {{- range .routes }}
+          - name: {{ .name }}
+            paths: {{ .paths | toJson }}
+            strip_path: {{ .strip_path }}
+            {{- if .protocols }}
+            protocols: {{ .protocols | toJson }}
+            {{- end }}
+        {{- end }}
+    {{- end }}
+    plugins:
+      - name: cors
+        config:
+          origins: {{ $svc.corsOrigins | toJson }}
+          credentials: {{ $svc.corsCredentials }}
+          methods: {{ $svc.corsMethods | toJson }}
+          headers: {{ $svc.corsHeaders | toJson }}
+{{- end }}
+
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -161,6 +195,18 @@ spec:
             periodSeconds: {{ $svc.readinessProbe.periodSeconds }}
             timeoutSeconds: {{ $svc.readinessProbe.timeoutSeconds }}
           {{- end }}
+          {{- if eq $serviceName "kong" }}
+          volumeMounts:
+            - name: kong-config
+              mountPath: {{ $svc.configMountPath }}
+              readOnly: true
+          {{- end }}
+      {{- if eq $serviceName "kong" }}
+      volumes:
+        - name: kong-config
+          configMap:
+            name: kong-config
+      {{- end }}
 
 {{- end }}
 

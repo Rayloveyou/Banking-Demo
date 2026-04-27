@@ -1,26 +1,26 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: banking-demo-ingress
+  name: banking-demo-config
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: "4"
+    argocd.argoproj.io/sync-wave: "1"
 spec:
   project: banking-demo
   source:
     repoURL: https://github.com/Rayloveyou/Banking-Demo.git
     targetRevision: main
-    path: phase2-helm-chart/banking-demo/charts/common
+    path: phase2-helm-chart/banking-demo/template-config
     helm:
-      releaseName: banking-demo-ingress
+      releaseName: banking-demo-config
       valueFiles:
-        - values.yaml
+        - ../charts/config/values.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: banking
   syncPolicy:
     automated:
-      prune: false
+      prune: true
       selfHeal: true
     syncOptions:
       - CreateNamespace=false

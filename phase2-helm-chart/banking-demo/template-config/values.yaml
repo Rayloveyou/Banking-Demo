@@ -1,0 +1,8 @@
+secret:
+  enabled: false
+
+ingress:
+  enabled: false
+
+kongExternalService:
+  enabled: false
