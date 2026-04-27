@@ -62,6 +62,8 @@ auth-service:
     port: 8001
     initialDelaySeconds: 10
     periodSeconds: 15
+  corsOrigins: http://localhost:3000
+  extraEnv: {}
 
 # ===== Account Service =====
 account-service:
@@ -101,6 +103,8 @@ account-service:
     port: 8002
     initialDelaySeconds: 10
     periodSeconds: 15
+  corsOrigins: http://localhost:3000
+  extraEnv: {}
 
 # ===== Transfer Service =====
 transfer-service:
@@ -140,6 +144,8 @@ transfer-service:
     port: 8003
     initialDelaySeconds: 10
     periodSeconds: 15
+  corsOrigins: http://localhost:3000
+  extraEnv: {}
 
 # ===== Notification Service =====
 notification-service:
@@ -179,6 +185,8 @@ notification-service:
     port: 8004
     initialDelaySeconds: 10
     periodSeconds: 15
+  corsOrigins: http://localhost:3000
+  extraEnv: {}
 
 # ===== Frontend =====
 frontend:
@@ -208,6 +216,51 @@ frontend:
       cpu: "200m"
   readinessProbe:
     enabled: false
+  extraEnv: {}
+
+# ===== API Producer =====
+api-producer:
+  enabled: true
+  replicas: 1
+  image:
+    repository: datnxdevops/banking-demo-api-producer
+    tag: v1
+    pullPolicy: Always
+  securityContext:
+    pod:
+      seccompProfile:
+        type: RuntimeDefault
+    container:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+          - ALL
+  service:
+    port: 8080
+    portName: http
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "256Mi"
+      cpu: "300m"
+  readinessProbe:
+    enabled: true
+    path: /health
+    port: 8080
+    initialDelaySeconds: 10
+    periodSeconds: 15
+  secretRef:
+    name: banking-db-secret
+    keys:
+      databaseUrl: DATABASE_URL
+      redisUrl: REDIS_URL
+  rabbitmqSecretRef:
+    name: rabbitmq-connection-secret
+    key: RABBITMQ_URL
+  corsOrigins: http://localhost:3000
+  extraEnv: {}
 
 # ===== Kong API Gateway =====
 kong:
