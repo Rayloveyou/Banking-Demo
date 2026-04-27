@@ -1,0 +1,36 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: banking-demo-auth-service
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  project: banking-demo
+  source:
+    repoURL: https://github.com/Rayloveyou/Banking-Demo.git
+    targetRevision: main
+    path: phase2-helm-chart/banking-demo
+    helm:
+      releaseName: banking-demo-auth-service
+      valueFiles:
+        - charts/auth-service/values.yaml
+      parameters:
+        - name: serviceName
+          value: auth-service
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: banking
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ApplyOutOfSyncOnly=true
+    retry:
+      limit: 3
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 1m

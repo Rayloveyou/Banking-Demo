@@ -1,11 +1,10 @@
 {{- /*
 Unified Microservice Template
-Renders Deployment + Service based on values of current service
-When auth-service sub-chart loads: uses auth-service values
-When account-service sub-chart loads: uses account-service values
-etc
+Renders Deployment + Service for a microservice based on serviceName parameter
+Usage: helm install -f charts/auth-service/values.yaml --set serviceName=auth-service ...
 */ -}}
-{{- $serviceName := include "banking-demo.serviceName" . }}
+{{- $serviceName := .Values.serviceName }}
+{{- if not $serviceName }}{{ fail "serviceName parameter required" }}{{ end }}
 {{- $svc := index $.Values $serviceName }}
 {{- if $svc.enabled }}
 ---

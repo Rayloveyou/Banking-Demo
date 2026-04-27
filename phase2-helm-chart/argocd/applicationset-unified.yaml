@@ -1,6 +1,6 @@
-# Banking Demo ApplicationSet
-# apps-in-app pattern: Main ApplicationSet generates per-service Applications
-# Each application loads its sub-chart with unified templates
+# Banking Demo ApplicationSet - apps-in-app pattern
+# 3 template types: config, infrastructure, microservices
+# Sync waves: -1 (config) → 0 (infra) → 1 (kong) → 2 (services) → 3 (frontend) → 4 (ingress)
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
@@ -13,9 +13,12 @@ spec:
   generators:
     - list:
         elements:
-          - name: config
+          # Config: namespace, secret, ingress (from charts/common)
+          - name: common
             syncWave: "-1"
             prune: false
+
+          # Infrastructure: stateful services + API gateway
           - name: postgres
             syncWave: "0"
             prune: false
@@ -25,6 +28,8 @@ spec:
           - name: kong
             syncWave: "1"
             prune: true
+
+          # Microservices: domain services
           - name: auth-service
             syncWave: "2"
             prune: true
@@ -40,12 +45,11 @@ spec:
           - name: api-producer
             syncWave: "2"
             prune: true
+
+          # Frontend UI
           - name: frontend
             syncWave: "3"
             prune: true
-          - name: ingress
-            syncWave: "4"
-            prune: false
 
   template:
     metadata:
@@ -57,11 +61,11 @@ spec:
       source:
         repoURL: https://github.com/Rayloveyou/Banking-Demo.git
         targetRevision: main
-        path: phase2-helm-chart/banking-demo
+        path: phase2-helm-chart/banking-demo/charts/{{ .name }}
         helm:
           releaseName: banking-demo-{{ .name }}
           valueFiles:
-            - values-phase1.yaml
+            - values.yaml
 
       destination:
         server: https://kubernetes.default.svc
@@ -72,7 +76,8 @@ spec:
           prune: {{ .prune }}
           selfHeal: true
         syncOptions:
-          - {{ if eq .name "config" }}CreateNamespace=true{{ else }}ApplyOutOfSyncOnly=true{{ end }}
+          - CreateNamespace=true
+          - ApplyOutOfSyncOnly=true
         retry:
           limit: 3
           backoff:

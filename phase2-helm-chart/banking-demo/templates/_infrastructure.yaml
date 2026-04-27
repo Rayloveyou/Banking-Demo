@@ -1,11 +1,10 @@
 {{- /*
 Unified Infrastructure Template
-Renders StatefulSet/Deployment + Service for postgres, redis, rabbitmq, kong
-When postgres sub-chart loads: uses postgres values
-When redis sub-chart loads: uses redis values
-etc
+Renders StatefulSet/Deployment + Service for infrastructure (postgres, redis, kong, rabbitmq)
+Usage: helm install -f charts/postgres/values.yaml --set serviceName=postgres ...
 */ -}}
-{{- $serviceName := include "banking-demo.serviceName" . }}
+{{- $serviceName := .Values.serviceName }}
+{{- if not $serviceName }}{{ fail "serviceName parameter required" }}{{ end }}
 {{- $svc := index $.Values $serviceName }}
 {{- if $svc.enabled }}
 
