@@ -20,6 +20,7 @@ spec:
       releaseName: banking-demo-frontend
       valueFiles:
         - charts/common/values.yaml
+        - values-phase1.yaml
         - charts/frontend/values.yaml
       parameters:
         # QUAN TRỌNG: Disable namespace và secret để tránh conflict

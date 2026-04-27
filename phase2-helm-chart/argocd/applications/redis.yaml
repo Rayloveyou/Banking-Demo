@@ -20,6 +20,7 @@ spec:
       releaseName: banking-demo-redis
       valueFiles:
         - charts/common/values.yaml
+        - values-phase1.yaml
         - charts/redis/values.yaml
       parameters:
         # Disable các services khác

@@ -64,7 +64,7 @@ smokeTest:
 
 ingress:
   enabled: true
-  className: haproxy
+  className: nginx
   host: npd-banking.co
   name: banking-ingress
   # Phase 5: Kong ở ns kong → dùng ExternalName Service trong ns banking

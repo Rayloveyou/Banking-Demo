@@ -20,6 +20,7 @@ spec:
       releaseName: banking-demo-ingress
       valueFiles:
         - charts/common/values.yaml
+        - values-phase1.yaml
       parameters:
         # QUAN TRỌNG: Disable namespace và secret để tránh conflict
         - name: namespace.enabled

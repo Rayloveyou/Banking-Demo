@@ -13,8 +13,8 @@ redis:
     portName: redis
     clusterIP: None
   storage:
-    storageClassName: nfs-client
-    size: 256Mi
+    storageClassName: standard
+    size: 5Gi
     volumeName: redis-data
     mountPath: /data
   readinessProbe:

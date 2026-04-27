@@ -19,8 +19,8 @@ postgres:
       password: POSTGRES_PASSWORD
       db: POSTGRES_DB
   storage:
-    storageClassName: nfs-client
-    size: 1Gi
+    storageClassName: standard
+    size: 10Gi
     volumeName: pgdata
     mountPath: /var/lib/postgresql/data
   readinessProbe:

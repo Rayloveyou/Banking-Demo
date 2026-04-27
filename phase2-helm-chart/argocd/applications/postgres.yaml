@@ -20,6 +20,7 @@ spec:
       releaseName: banking-demo-postgres
       valueFiles:
         - charts/common/values.yaml
+        - values-phase1.yaml
         - charts/postgres/values.yaml
       parameters:
         # Disable các services khác
