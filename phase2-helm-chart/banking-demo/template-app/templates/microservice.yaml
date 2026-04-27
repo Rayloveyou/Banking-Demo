@@ -1,8 +1,11 @@
-{{- /*
-Unified Microservice Template
-Renders Deployment + Service for a microservice based on serviceName parameter
-Usage: helm install -f charts/auth-service/values.yaml --set serviceName=auth-service ...
-*/ -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: debug-values
+data:
+  serviceName: {{ .Values.serviceName | quote }}
+  someKey: "test"
+---
 {{- $serviceName := .Values.serviceName }}
 {{- if not $serviceName }}{{ fail "serviceName parameter required" }}{{ end }}
 {{- $svc := index $.Values $serviceName }}
