@@ -13,7 +13,7 @@ metadata:
 spec:
   project: banking-demo
   source:
-    repoURL: https://github.com/kevinram164/banking-demo.git  # ← Đổi thành repo của bạn
+    repoURL: https://github.com/Rayloveyou/Banking-Demo.git  # ← Đổi thành repo của bạn
     targetRevision: main                                      # ← Branch hoặc tag
     path: phase2-helm-chart/banking-demo
     helm:

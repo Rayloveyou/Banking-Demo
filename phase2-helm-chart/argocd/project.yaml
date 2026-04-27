@@ -13,8 +13,8 @@ metadata:
 spec:
   description: "Banking Demo - Helm chart and per-service apps"
   sourceRepos:
-    - https://github.com/YOUR_ORG/banking-demo.git   # ← Đổi thành repo của bạn (có thể thêm nhiều dòng)
-    # - 'git@github.com:YOUR_ORG/banking-demo.git'
+    - https://github.com/Rayloveyou/Banking-Demo.git
+    - 'https://github.com/Rayloveyou/*'
   destinations:
     - namespace: banking
       server: https://kubernetes.default.svc
@@ -33,8 +33,5 @@ spec:
       kind: "*"
     - group: networking.k8s.io
       kind: "*"
-  # Chỉ cho phép deploy từ repo trên, không cho phép repo khác
-  sourceNamespace: ""
-  # OrphanedResources: theo dõi resource không còn trong Git (tùy chọn)
   orphanedResources:
     warn: true

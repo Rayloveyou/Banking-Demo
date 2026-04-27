@@ -2,6 +2,22 @@
 
 Hướng dẫn triển khai chart **banking-demo** bằng ArgoCD.
 
+## 🔐 ArgoCD Login Credentials
+
+```
+URL:       https://localhost:8080
+Username:  admin
+Password:  6LCtNtet5Hs10xWI
+Repository: https://github.com/Rayloveyou/Banking-Demo.git
+```
+
+**Port-forward:**
+```bash
+kubectl port-forward svc/argocd-server -n argocd 8080:443
+```
+
+---
+
 ## 🚀 Cách đơn giản nhất (Khuyến nghị cho người mới)
 
 **Chỉ cần 2 files:**
