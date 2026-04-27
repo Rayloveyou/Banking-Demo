@@ -1,35 +1,11 @@
-# ArgoCD/Helm merge theo key redis
+# Redis values - merged with parent values via ArgoCD/Helm
 redis:
-  fullnameOverride: redis
   enabled: true
+  replicas: 1
   image:
     repository: redis
-    tag: 7-alpine
+    tag: "7-alpine"
     pullPolicy: IfNotPresent
-  imagePullSecrets: []
-  replicas: 1
-  service:
-    port: 6379
-    portName: redis
-    clusterIP: None
-  storage:
-    storageClassName: standard
-    size: 5Gi
-    volumeName: redis-data
-    mountPath: /data
-  readinessProbe:
-    enabled: true
-    command: ["redis-cli", "ping"]
-    initialDelaySeconds: 3
-    periodSeconds: 10
-    timeoutSeconds: 1
-  resources:
-    requests:
-      memory: "64Mi"
-      cpu: "50m"
-    limits:
-      memory: "128Mi"
-      cpu: "200m"
   securityContext:
     pod:
       seccompProfile:
@@ -37,7 +13,29 @@ redis:
       fsGroup: 999
     container:
       allowPrivilegeEscalation: false
+      runAsNonRoot: false
+  service:
+    port: 6379
+    portName: redis
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "256Mi"
+      cpu: "200m"
+  storage:
+    volumeName: redis-storage
+    mountPath: /data
+    size: 5Gi
+    storageClassName: standard
   hook:
-    preInstall: true
-    preUpgrade: true
+    preInstall: false
+    preUpgrade: false
     weight: "-5"
+  readinessProbe:
+    enabled: true
+    command: ["redis-cli", "ping"]
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    timeoutSeconds: 3

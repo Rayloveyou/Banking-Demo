@@ -1,41 +1,11 @@
-# ArgoCD/Helm merge theo key postgres
+# PostgreSQL values - merged with parent values via ArgoCD/Helm
 postgres:
-  fullnameOverride: postgres
   enabled: true
+  replicas: 1
   image:
     repository: postgres
     tag: "16"
     pullPolicy: IfNotPresent
-  imagePullSecrets: []
-  replicas: 1
-  service:
-    port: 5432
-    portName: postgres
-    clusterIP: None
-  secretRef:
-    name: banking-db-secret
-    keys:
-      user: POSTGRES_USER
-      password: POSTGRES_PASSWORD
-      db: POSTGRES_DB
-  storage:
-    storageClassName: standard
-    size: 10Gi
-    volumeName: pgdata
-    mountPath: /var/lib/postgresql/data
-  readinessProbe:
-    enabled: true
-    user: banking
-    initialDelaySeconds: 5
-    periodSeconds: 10
-    timeoutSeconds: 5
-  resources:
-    requests:
-      memory: "256Mi"
-      cpu: "100m"
-    limits:
-      memory: "512Mi"
-      cpu: "500m"
   securityContext:
     pod:
       seccompProfile:
@@ -43,7 +13,35 @@ postgres:
       fsGroup: 999
     container:
       allowPrivilegeEscalation: false
+      runAsNonRoot: false
+  service:
+    port: 5432
+    portName: postgres
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "250m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+  secretRef:
+    name: banking-db-secret
+    keys:
+      user: POSTGRES_USER
+      password: POSTGRES_PASSWORD
+      db: POSTGRES_DB
+  storage:
+    volumeName: postgres-storage
+    mountPath: /var/lib/postgresql/data
+    size: 10Gi
+    storageClassName: standard
   hook:
-    preInstall: true
-    preUpgrade: true
-    weight: "-5"
+    preInstall: false
+    preUpgrade: false
+    weight: "-10"
+  readinessProbe:
+    enabled: true
+    user: banking
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5

@@ -22,9 +22,6 @@ spec:
           - name: redis
             syncWave: "0"
             prune: false
-          - name: rabbitmq
-            syncWave: "0"
-            prune: false
           - name: kong
             syncWave: "1"
             prune: true

@@ -1,23 +1,22 @@
-# ArgoCD/Helm merge theo key frontend
+# Frontend values - merged with parent values via ArgoCD/Helm
 frontend:
-  fullnameOverride: frontend
   enabled: true
-  image:
-    repository: registry.gitlab.com/kiettt164/banking-demo-payment/frontend
-    tag: 2d4c7af
-    pullPolicy: IfNotPresent
-  imagePullSecrets: []
   replicas: 1
+  image:
+    repository: datnxdevops/banking-demo-frontend
+    tag: v1
+    pullPolicy: Always
+  securityContext:
+    pod:
+      seccompProfile:
+        type: RuntimeDefault
+      fsGroup: 101
+    container:
+      allowPrivilegeEscalation: false
+      runAsNonRoot: false
   service:
     port: 80
     portName: http
-  readinessProbe:
-    enabled: true
-    path: /
-    port: 80
-    initialDelaySeconds: 5
-    periodSeconds: 10
-    timeoutSeconds: 1
   resources:
     requests:
       memory: "64Mi"
@@ -25,9 +24,6 @@ frontend:
     limits:
       memory: "128Mi"
       cpu: "200m"
-  securityContext:
-    pod:
-      seccompProfile:
-        type: RuntimeDefault
-    container:
-      allowPrivilegeEscalation: false
+  readinessProbe:
+    enabled: false
+  extraEnv: {}
