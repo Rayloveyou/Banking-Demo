@@ -1,6 +1,0 @@
-{{- /* Generate Deployments + Services for all microservices */ -}}
-{{- $services := list "auth-service" "account-service" "transfer-service" "notification-service" "api-producer" "frontend" }}
-{{- range $services }}
-{{- include "banking-demo.microservice" (dict "root" $ "svcName" .) }}
----
-{{- end }}
