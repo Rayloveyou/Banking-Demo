@@ -25,6 +25,14 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- default "banking-db-secret" .Values.global.secretName -}}
 {{- end -}}
 
+{{- define "banking-demo.serviceName" -}}
+{{- .Chart.Name -}}
+{{- end -}}
+
+{{- define "banking-demo.chart" -}}
+{{- printf "%s-%s" .Chart.Name .Chart.AppVersion | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
 {{/* --- Component helpers (values from .Values.<component>) --- */}}
 {{- define "banking-demo.postgres.fullname" -}}{{- .Values.postgres.fullnameOverride | default "postgres" -}}{{- end -}}
 {{- define "banking-demo.postgres.labels" -}}

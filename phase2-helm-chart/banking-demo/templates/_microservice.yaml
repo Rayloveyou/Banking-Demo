@@ -1,28 +1,33 @@
-{{- /* Microservice Deployment + Service - renders for all enabled services */ -}}
-{{- $services := list "auth-service" "account-service" "transfer-service" "notification-service" "api-producer" "frontend" }}
-{{- range $services }}
-{{- $svc := index $.Values . }}
+{{- /*
+Unified Microservice Template
+Renders Deployment + Service based on values of current service
+When auth-service sub-chart loads: uses auth-service values
+When account-service sub-chart loads: uses account-service values
+etc
+*/ -}}
+{{- $serviceName := include "banking-demo.serviceName" . }}
+{{- $svc := index $.Values $serviceName }}
 {{- if $svc.enabled }}
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ . }}
+  name: {{ $serviceName }}
   namespace: {{ $.Release.Namespace }}
   labels:
-    app: {{ . }}
+    app: {{ $serviceName }}
     app.kubernetes.io/name: {{ include "banking-demo.chart" $ }}
     app.kubernetes.io/instance: {{ $.Release.Name }}
-    app.kubernetes.io/component: {{ . }}
+    app.kubernetes.io/component: {{ $serviceName }}
 spec:
   replicas: {{ $svc.replicas }}
   selector:
     matchLabels:
-      app: {{ . }}
+      app: {{ $serviceName }}
   template:
     metadata:
       labels:
-        app: {{ . }}
+        app: {{ $serviceName }}
     spec:
       {{- with $svc.securityContext.pod }}
       securityContext:
@@ -33,7 +38,7 @@ spec:
         {{- toYaml $svc.imagePullSecrets | nindent 8 }}
       {{- end }}
       containers:
-        - name: {{ . }}
+        - name: {{ $serviceName }}
           image: "{{ $svc.image.repository }}:{{ $svc.image.tag }}"
           imagePullPolicy: {{ $svc.image.pullPolicy }}
           {{- with $svc.securityContext.container }}
@@ -88,21 +93,20 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ . }}
+  name: {{ $serviceName }}
   namespace: {{ $.Release.Namespace }}
   labels:
-    app: {{ . }}
+    app: {{ $serviceName }}
     app.kubernetes.io/name: {{ include "banking-demo.chart" $ }}
     app.kubernetes.io/instance: {{ $.Release.Name }}
-    app.kubernetes.io/component: {{ . }}
+    app.kubernetes.io/component: {{ $serviceName }}
 spec:
   type: ClusterIP
   selector:
-    app: {{ . }}
+    app: {{ $serviceName }}
   ports:
     - port: {{ $svc.service.port }}
       targetPort: {{ $svc.service.targetPort | default $svc.service.port }}
       name: {{ $svc.service.portName | default "http" }}
       protocol: TCP
-{{- end }}
 {{- end }}
