@@ -1,1 +1,1 @@
-{{- include "banking-demo.microservice.deployment" (dict "root" . "svcName" "api-producer") }}
+{{- include "banking-demo.microservice" (dict "root" . "svcName" "api-producer") }}
