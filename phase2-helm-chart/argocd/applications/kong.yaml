@@ -10,11 +10,11 @@ spec:
   source:
     repoURL: https://github.com/Rayloveyou/Banking-Demo.git
     targetRevision: main
-    path: phase2-helm-chart/banking-demo
+    path: phase2-helm-chart/banking-demo/template-infra
     helm:
       releaseName: banking-demo-kong
       valueFiles:
-        - charts/kong/values.yaml
+        - ../charts/kong/values.yaml
       parameters:
         - name: serviceName
           value: kong

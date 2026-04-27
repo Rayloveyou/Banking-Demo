@@ -10,11 +10,11 @@ spec:
   source:
     repoURL: https://github.com/Rayloveyou/Banking-Demo.git
     targetRevision: main
-    path: phase2-helm-chart/banking-demo
+    path: phase2-helm-chart/banking-demo/template-app
     helm:
       releaseName: banking-demo-auth-service
       valueFiles:
-        - charts/auth-service/values.yaml
+        - ../charts/auth-service/values.yaml
       parameters:
         - name: serviceName
           value: auth-service

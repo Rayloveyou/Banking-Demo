@@ -10,11 +10,11 @@ spec:
   source:
     repoURL: https://github.com/Rayloveyou/Banking-Demo.git
     targetRevision: main
-    path: phase2-helm-chart/banking-demo
+    path: phase2-helm-chart/banking-demo/template-app
     helm:
       releaseName: banking-demo-transfer-service
       valueFiles:
-        - charts/transfer-service/values.yaml
+        - ../charts/transfer-service/values.yaml
       parameters:
         - name: serviceName
           value: transfer-service
