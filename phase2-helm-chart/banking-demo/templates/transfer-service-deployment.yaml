@@ -1,1 +1,0 @@
-{{- include "banking-demo.microservice" (dict "root" . "svcName" "transfer-service") }}
