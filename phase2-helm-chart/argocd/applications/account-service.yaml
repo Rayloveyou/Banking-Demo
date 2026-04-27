@@ -14,7 +14,7 @@ spec:
     helm:
       releaseName: banking-demo-account-service
       valueFiles:
-        - phase2-helm-chart/banking-demo/charts/account-service/values.yaml
+        - ../charts/account-service/values.yaml
       parameters:
         - name: serviceName
           value: account-service

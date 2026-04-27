@@ -14,7 +14,7 @@ spec:
     helm:
       releaseName: banking-demo-kong
       valueFiles:
-        - phase2-helm-chart/banking-demo/charts/kong/values.yaml
+        - ../charts/kong/values.yaml
       parameters:
         - name: serviceName
           value: kong

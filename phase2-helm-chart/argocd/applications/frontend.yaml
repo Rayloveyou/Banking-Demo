@@ -14,7 +14,7 @@ spec:
     helm:
       releaseName: banking-demo-frontend
       valueFiles:
-        - phase2-helm-chart/banking-demo/charts/frontend/values.yaml
+        - ../charts/frontend/values.yaml
       parameters:
         - name: serviceName
           value: frontend

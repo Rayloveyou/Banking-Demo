@@ -14,7 +14,7 @@ spec:
     helm:
       releaseName: banking-demo-postgres
       valueFiles:
-        - phase2-helm-chart/banking-demo/charts/postgres/values.yaml
+        - ../charts/postgres/values.yaml
       parameters:
         - name: serviceName
           value: postgres

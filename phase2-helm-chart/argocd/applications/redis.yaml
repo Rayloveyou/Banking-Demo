@@ -14,7 +14,7 @@ spec:
     helm:
       releaseName: banking-demo-redis
       valueFiles:
-        - phase2-helm-chart/banking-demo/charts/redis/values.yaml
+        - ../charts/redis/values.yaml
       parameters:
         - name: serviceName
           value: redis
