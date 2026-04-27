@@ -14,7 +14,7 @@ spec:
     helm:
       releaseName: banking-demo-notification-service
       valueFiles:
-        - ../charts/notification-service/values.yaml
+        - phase2-helm-chart/banking-demo/charts/notification-service/values.yaml
       parameters:
         - name: serviceName
           value: notification-service

@@ -14,7 +14,7 @@ spec:
     helm:
       releaseName: banking-demo-api-producer
       valueFiles:
-        - ../charts/api-producer/values.yaml
+        - phase2-helm-chart/banking-demo/charts/api-producer/values.yaml
       parameters:
         - name: serviceName
           value: api-producer

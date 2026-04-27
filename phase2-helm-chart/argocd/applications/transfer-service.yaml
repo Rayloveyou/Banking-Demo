@@ -14,7 +14,7 @@ spec:
     helm:
       releaseName: banking-demo-transfer-service
       valueFiles:
-        - ../charts/transfer-service/values.yaml
+        - phase2-helm-chart/banking-demo/charts/transfer-service/values.yaml
       parameters:
         - name: serviceName
           value: transfer-service
