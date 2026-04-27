@@ -1,68 +1,31 @@
-# Banking Demo ApplicationSet
-# Generates per-service Applications from a list of services
----
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
   name: banking-demo
   namespace: argocd
-  labels:
-    app.kubernetes.io/name: banking-demo
 spec:
   goTemplate: true
   generators:
     - list:
         elements:
           - name: namespace
-            syncWave: "-1"
-            enabled: "true"
-
           - name: postgres
-            syncWave: "0"
-            enabled: "true"
-
           - name: redis
-            syncWave: "0"
-            enabled: "true"
-
           - name: kong
-            syncWave: "1"
-            enabled: "true"
-
           - name: auth-service
-            syncWave: "2"
-            enabled: "true"
-
           - name: account-service
-            syncWave: "2"
-            enabled: "true"
-
           - name: transfer-service
-            syncWave: "2"
-            enabled: "true"
-
           - name: notification-service
-            syncWave: "2"
-            enabled: "true"
-
           - name: api-producer
-            syncWave: "2"
-            enabled: "true"
-
           - name: frontend
-            syncWave: "3"
-            enabled: "true"
-
           - name: ingress
-            syncWave: "4"
-            enabled: "true"
 
   template:
     metadata:
       name: banking-demo-{{ .name }}
       labels:
         app.kubernetes.io/name: banking-demo
-        app.kubernetes.io/component: {{ .name }}
+        app.kubernetes.io/component: "{{ .name }}"
     spec:
       project: banking-demo
       source:
@@ -74,37 +37,6 @@ spec:
           valueFiles:
             - charts/common/values.yaml
             - values-phase1.yaml
-            {{- if and (ne .name "namespace") (ne .name "ingress") (ne .name "kong") (ne .name "postgres") (ne .name "redis") }}
-            - charts/{{ .name }}/values.yaml
-            {{- end }}
-          parameters:
-            # Disable namespace creation in individual charts
-            - name: namespace.enabled
-              value: "false"
-            - name: secret.enabled
-              value: "false"
-
-            # Disable all services except the current one
-            {{- range list "postgres" "redis" "kong" "auth-service" "account-service" "transfer-service" "notification-service" "api-producer" "frontend" "ingress" }}
-            {{- if ne . $.name }}
-            - name: {{ . }}.enabled
-              value: "false"
-            {{- end }}
-            {{- end }}
-
-            # Enable current service if not infrastructure
-            {{- if ne .name "namespace" }}
-            - name: {{ .name }}.enabled
-              value: "{{ .enabled }}"
-            {{- else }}
-            - name: namespace.enabled
-              value: "{{ .enabled }}"
-            - name: secret.enabled
-              value: "{{ .enabled }}"
-            {{- end }}
-
-            - name: ingress.enabled
-              value: "{{ if eq .name "ingress" }}true{{ else }}false{{ end }}"
 
       destination:
         server: https://kubernetes.default.svc
@@ -112,14 +44,9 @@ spec:
 
       syncPolicy:
         automated:
-          prune: {{ if eq .name "namespace" }}false{{ else }}true{{ end }}
           selfHeal: true
         syncOptions:
-          {{- if eq .name "namespace" }}
           - CreateNamespace=true
-          {{- else }}
-          - ApplyOutOfSyncOnly=true
-          {{- end }}
         retry:
           limit: 3
           backoff:
